@@ -7,7 +7,6 @@ export default function Header() {
         <div className="width">
             <h1><Link to="/">Coiner!</Link></h1>
         </div>
-        header
     </header>
   )
 }
