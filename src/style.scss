@@ -217,3 +217,20 @@ img{
         color: #111;
     }
 }
+
+.purchase-sell{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 50px 0;
+}
+
+.crypto-holdings{
+    text-align: center;
+    margin: 20px 0;
+}
+
+.confirmation-popup{
+    text-align: center;
+    margin-bottom: 75px;
+}

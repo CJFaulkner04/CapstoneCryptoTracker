@@ -6,16 +6,85 @@ import Header from '../components/Header';
 
 
 export default function Show() {
-  const store = showStore()
-  const params = useParams()
+  const store = showStore();
+  const params = useParams();
+  const purchaseHistoryKey = `purchase_${store.data?.symbol}`;
+
+  const [purchaseAmount, setPurchaseAmount] = React.useState(0);
+  const [sellAmount, setSellAmount] = React.useState(0);
+  const [cryptoHoldings, setCryptoHoldings] = React.useState(0);
+  const [showPurchaseConfirmation, setShowPurchaseConfirmation] = React.useState(false);
+  const [showSellConfirmation, setShowSellConfirmation] = React.useState(false);
 
   React.useEffect(() => {
-    store.fetchData(params.id)
-
+    store.fetchData(params.id);
     return () => {
       store.reset();
-    }
-  }, []);
+    };
+  }, [params.id]);
+
+  React.useEffect(() => {
+    const storedPurchaseHistory = localStorage.getItem(purchaseHistoryKey);
+    const initialPurchaseHistory = storedPurchaseHistory ? JSON.parse(storedPurchaseHistory) : [];
+
+    // Calculate total crypto holdings based on purchase history
+    const totalCryptoHoldings = initialPurchaseHistory.reduce((total, purchase) => {
+      return total + parseFloat(purchase.amount);
+    }, 0);
+
+    setCryptoHoldings(totalCryptoHoldings);
+  }, [purchaseHistoryKey]);
+
+  const handlePurchase = (e) => {
+    e.preventDefault();
+    setShowPurchaseConfirmation(true);
+  };
+
+  const handleSell = (e) => {
+    e.preventDefault();
+    setShowSellConfirmation(true);
+  };
+
+  const confirmPurchase = () => {
+    const totalCost = purchaseAmount * store.data.market_data.current_price.usd;
+    setCryptoHoldings(cryptoHoldings + parseFloat(purchaseAmount));
+
+    const newPurchase = {
+      amount: purchaseAmount,
+      totalCost,
+      timestamp: new Date().toISOString(),
+    };
+    const storedPurchaseHistory = localStorage.getItem(purchaseHistoryKey);
+    const updatedPurchaseHistory = storedPurchaseHistory ? JSON.parse(storedPurchaseHistory) : [];
+    updatedPurchaseHistory.push(newPurchase);
+    localStorage.setItem(purchaseHistoryKey, JSON.stringify(updatedPurchaseHistory));
+
+    setPurchaseAmount(0);
+    setShowPurchaseConfirmation(false);
+  };
+
+  const confirmSell = () => {
+    const sellValue = sellAmount * store.data.market_data.current_price.usd;
+    setCryptoHoldings(cryptoHoldings - parseFloat(sellAmount));
+
+    const newSale = {
+      amount: -sellAmount,
+      totalValue: sellValue,
+      timestamp: new Date().toISOString(),
+    };
+    const storedPurchaseHistory = localStorage.getItem(purchaseHistoryKey);
+    const updatedPurchaseHistory = storedPurchaseHistory ? JSON.parse(storedPurchaseHistory) : [];
+    updatedPurchaseHistory.push(newSale);
+    localStorage.setItem(purchaseHistoryKey, JSON.stringify(updatedPurchaseHistory));
+
+    setSellAmount(0);
+    setShowSellConfirmation(false);
+  };
+
+  const cancelAction = () => {
+    setShowPurchaseConfirmation(false);
+    setShowSellConfirmation(false);
+  };
 
   return (
     <div>
@@ -83,8 +152,80 @@ export default function Show() {
             </div>
           </div>
         </div>
-        
+        <div className='width'>
+          <div className='crypto-holdings'>
+            <h2>Crypto Holdings</h2>
+            <p>
+              You currently own: {cryptoHoldings} {store.data.symbol} (Value: ${(
+                cryptoHoldings * store.data.market_data.current_price.usd
+              ).toFixed(2)})
+            </p>
+          </div>
+        </div>
+        <div className='width'>
+          <div className='purchase-sell'>
+            <div className='purchase-form'>
+              <h2>Purchase Crypto</h2>
+              <form onSubmit={handlePurchase}>
+                <label htmlFor="purchaseAmount">Amount to Buy:</label>
+                <input
+                  type="number"
+                  id="purchaseAmount"
+                  value={purchaseAmount}
+                  onChange={(e) => setPurchaseAmount(e.target.value)}
+                  step="0.01"
+                  min="0"
+                  required
+                />
+                <button type="submit">Purchase</button>
+              </form>
+            </div>
+
+            <div className='sell-form'>
+              <h2>Sell Crypto</h2>
+              <form onSubmit={handleSell}>
+                <label htmlFor="sellAmount">Amount to Sell:</label>
+                <input
+                  type="number"
+                  id="sellAmount"
+                  value={sellAmount}
+                  onChange={(e) => setSellAmount(e.target.value)}
+                  step="0.01"
+                  min="0"
+                  required
+                />
+                <button type="submit">Sell</button>
+              </form>
+            </div>
+            
+          </div>
+        </div>
+        <div className='width'>
+          {/* Purchase confirmation popup */}
+          {showPurchaseConfirmation && (
+            <div className="confirmation-popup">
+              <p>
+                Are you sure you want to purchase {purchaseAmount} {store.data.symbol} for ${purchaseAmount * store.data.market_data.current_price.usd}?
+              </p>
+              <button onClick={confirmPurchase}>Confirm</button>
+              <button onClick={cancelAction}>Cancel</button>
+            </div>
+          )}
+          {/* Sell confirmation popup */}
+          {showSellConfirmation && (
+            <div className="confirmation-popup">
+              <p>
+                Are you sure you want to sell {sellAmount} {store.data.symbol} for ${sellAmount * store.data.market_data.current_price.usd}?
+              </p>
+              <button onClick={confirmSell}>Confirm</button>
+              <button onClick={cancelAction}>Cancel</button>
+            </div>
+          )}
+          
+        </div>
+          
       </>}
     </div>
+    
   );
 }
