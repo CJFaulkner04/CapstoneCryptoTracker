@@ -48,7 +48,7 @@ const homeStore = create((set) => ({
 				//Handle errors during AP call.
 				console.error('Error during API call to retrieve:', err.message);
 				// Show an error message to the user.
-				set({ coins: [], searched: false, errMessage: 'An error occurred during the search. Please try again later.' });
+				set({ coins: [], searching: false, searched: false, errMessage: 'An error occurred during the search. Please try again later.' });
 			}
 		} else {
 			//When search box is empty or < 2 revert back to trending, and searched state is false.
