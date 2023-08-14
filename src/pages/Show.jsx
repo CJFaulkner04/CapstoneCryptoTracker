@@ -16,6 +16,7 @@ export default function Show() {
   const [showPurchaseConfirmation, setShowPurchaseConfirmation] = React.useState(false);
   const [showSellConfirmation, setShowSellConfirmation] = React.useState(false);
 
+  //Fetch data for the specific coin based on the route parameter
   React.useEffect(() => {
     store.fetchData(params.id);
     return () => {
@@ -88,14 +89,22 @@ export default function Show() {
 
   return (
     <div>
-      <Header />
+
+      {/* Display the header with a back button */}
+      <Header back />
+
+      {/* Render only when data is available */}
       {store.data && <>
+
+      {/* Display coin image, name, and symbol */}
         <header className='show-header'>
             <img src ={store.data.image.large} />
             <h2>
               {store.data.name} ({store.data.symbol})
             </h2>
         </header>
+
+        {/* Container for the AreaChart */}
         <div className='width'>
           <div className='show-graph'>
             <ResponsiveContainer width="100%" height="100%">
@@ -120,6 +129,7 @@ export default function Show() {
           </div>
         </div>
 
+        {/* Display coin details */}
         <div className='show-details'>
           <div className='width'>
             <h2>Details</h2>
@@ -152,6 +162,8 @@ export default function Show() {
             </div>
           </div>
         </div>
+
+        {/* Display info for buying, selling, and crypto holdings. */}
         <div className='width'>
           <div className='crypto-holdings'>
             <h2>Crypto Holdings</h2>
@@ -177,7 +189,7 @@ export default function Show() {
                   min="0"
                   required
                 />
-                <button type="submit">Purchase</button>
+                <button className='buy' type="submit">Purchase</button>
               </form>
             </div>
 
@@ -194,7 +206,7 @@ export default function Show() {
                   min="0"
                   required
                 />
-                <button type="submit">Sell</button>
+                <button className='sell' type="submit">Sell</button>
               </form>
             </div>
             
@@ -207,8 +219,8 @@ export default function Show() {
               <p>
                 Are you sure you want to purchase {purchaseAmount} {store.data.symbol} for ${purchaseAmount * store.data.market_data.current_price.usd}?
               </p>
-              <button onClick={confirmPurchase}>Confirm</button>
-              <button onClick={cancelAction}>Cancel</button>
+              <button className='buy' onClick={confirmPurchase}>Confirm</button>
+              <button className= 'buy' onClick={cancelAction}>Cancel</button>
             </div>
           )}
           {/* Sell confirmation popup */}
@@ -217,8 +229,8 @@ export default function Show() {
               <p>
                 Are you sure you want to sell {sellAmount} {store.data.symbol} for ${sellAmount * store.data.market_data.current_price.usd}?
               </p>
-              <button onClick={confirmSell}>Confirm</button>
-              <button onClick={cancelAction}>Cancel</button>
+              <button className='sell' onClick={confirmSell}>Confirm</button>
+              <button className='sell' onClick={cancelAction}>Cancel</button>
             </div>
           )}
           

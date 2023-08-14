@@ -7,6 +7,8 @@ import './style.scss';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+
+  //Create routes for home page and individual coin pages
     <BrowserRouter>
     <Routes>
       <Route index element={<Home />} />
